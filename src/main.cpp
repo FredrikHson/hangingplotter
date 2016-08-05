@@ -17,6 +17,7 @@ SDL_RendererInfo displayRendererInfo;
 float deltatime;
 float abstime;
 motorcontroller mot1;
+motorcontroller mot2;
 
 void Display_InitGL()
 {
@@ -57,6 +58,8 @@ void Display_Render()
     glLoadIdentity();
     glColor3f(1, 1, 1);
     mot1.draw();
+    glTranslatef(-700,0,0);
+    mot2.draw();
 }
 int main(int argc, char* argv[])
 {
@@ -121,9 +124,11 @@ int main(int argc, char* argv[])
             lastsetTime = abstime;
             timetonextset = (float)(rand() % 2000) / 100;
             mot1.setAngle((float)(rand() % 314) / 100);
+            mot2.setAngle((float)(rand() % 314) / 100);
         }
 
         mot1.update();
+        mot2.update();
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
