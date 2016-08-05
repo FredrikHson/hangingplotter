@@ -6,10 +6,13 @@
 class motorcontroller
 {
     motor m;
-    float p;
-    float i;
-    float d;
+    float kp;
+    float ki;
+    float kd;
     float lastGraphTime;
+
+    float errSum;
+    float lastErr;
 public:
     float targetAngle;
     float currentAngle;

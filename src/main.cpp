@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
         if(abstime >= lastsetTime + timetonextset)
         {
             lastsetTime = abstime;
-            timetonextset = (float)(rand() % 200) / 100;
+            timetonextset = (float)(rand() % 2000) / 100;
             mot1.setAngle(rand()%50);
         }
 

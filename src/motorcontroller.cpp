@@ -71,7 +71,25 @@ void motorcontroller::update()
 {
     currentAngle = m.getAngle();
 
-    if((lastGraphTime + 0.1) > abstime)
+    float error = targetAngle - currentAngle;
+    errSum += error * deltatime;
+    float output = kp * error + ki * errSum + kd * ((error - lastErr) / deltatime);
+    lastErr=error;
+
+    if(output > 0)
+    {
+        m.update(1);
+    }
+    else if(output < 0)
+    {
+        m.update(-1);
+    }
+    else
+    {
+        m.update(0);
+    }
+
+    if((lastGraphTime + 0.1) < abstime)
     {
         lastGraphTime = abstime;
 
@@ -87,16 +105,19 @@ void motorcontroller::setAngle(float angle)
 
 motorcontroller::motorcontroller()
 {
-    this->p = 1;
-    this->i = 1;
-    this->d = 1;
+    this->kp = 0.6;
+    this->ki = 0.5;
+    this->kd = 0.5;
 
     this->graphend = 0;
+
+    this->errSum        = 0;
+    this->lastGraphTime = 0;
 }
 
 void motorcontroller::setPid(float p, float i, float d)
 {
-    this->p = p;
-    this->i = i;
-    this->d = d;
+    this->kp = p;
+    this->ki = i;
+    this->kd = d;
 }
