@@ -10,17 +10,18 @@
 class motor
 {
     int currdir;
+    float angle;
 public:
     float currentspeed;
     float acceleration;
     float deceleration;
     float maxspeed; // in rpm
-    float angle;
     float lastDrawangle;
 
     motor();
     void draw();
     void update(float direction);
+    float getAngle();
 };
 
 #endif //__MOTOR_H__

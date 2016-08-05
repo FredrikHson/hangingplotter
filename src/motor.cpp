@@ -11,7 +11,7 @@ motor::motor()
     this->deceleration  = this->acceleration*0.1;
     this->maxspeed      = 60;
     this->lastDrawangle = 0;
-    this->currdir     = 0;
+    this->currdir       = 0;
 }
 
 
@@ -104,4 +104,9 @@ void motor::update(float direction)
 
     angle += currentspeed * deltatime;
 
+}
+
+float motor::getAngle()
+{
+    return angle;
 }

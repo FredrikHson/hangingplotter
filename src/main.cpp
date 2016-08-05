@@ -8,6 +8,7 @@
 
 #include "globals.h"
 #include "motor.h"
+#include "motorcontroller.h"
 
 SDL_Window* displayWindow;
 SDL_Renderer* displayRenderer;
@@ -15,7 +16,7 @@ SDL_RendererInfo displayRendererInfo;
 
 float deltatime;
 float abstime;
-motor mot1;
+motorcontroller mot1;
 
 void Display_InitGL()
 {
@@ -115,8 +116,17 @@ int main(int argc, char* argv[])
         deltatime = ((float)(now - last)) / 1000.0f;;
         last = now;
         abstime += deltatime;
+        static float lastsetTime = abstime;
+        static float timetonextset = 0;
 
-        mot1.update(sin(abstime*0.2));
+        if(abstime >= lastsetTime + timetonextset)
+        {
+            lastsetTime = abstime;
+            timetonextset = (float)(rand() % 200) / 100;
+            mot1.setAngle(rand()%50);
+        }
+
+        mot1.update();
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
