@@ -17,6 +17,7 @@ public:
     float targetAngle;
     float currentAngle;
     float anglegraph[500];
+    float targetgraph[500];
     int graphend;
 
     void setAngle(float angle);

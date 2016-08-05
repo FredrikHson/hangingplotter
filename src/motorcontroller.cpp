@@ -9,7 +9,7 @@ void motorcontroller::draw()
     glPushMatrix();
 
     glBegin(GL_LINES);
-    glColor3f(1,0,0);
+    glColor3f(1, 0, 0);
     glVertex2f(0, 0);
     glVertex2f(sin(targetAngle) * 75, cos(targetAngle) * 75);
     glEnd();
@@ -41,15 +41,19 @@ void motorcontroller::draw()
         }
     }
 
-    if(targetAngle < gmin)
+    for(int j = 0; j < 500; j++)
     {
-        gmin = targetAngle;
+        if(gmin > targetgraph[j])
+        {
+            gmin = targetgraph[j];
+        }
+
+        if(gmax < targetgraph[j])
+        {
+            gmax = targetgraph[j];
+        }
     }
 
-    if(targetAngle > gmax)
-    {
-        gmax = targetAngle;
-    }
 
     gmax += 0.1;
     gmin -= 0.1;
@@ -63,10 +67,14 @@ void motorcontroller::draw()
     }
 
     glEnd();
-    glBegin(GL_LINES);
-    glColor3f(1, 0, 0);
-    glVertex2f(0, ((targetAngle - gmin) / (gmax - gmin)) * 400);
-    glVertex2f(500, ((targetAngle - gmin) / (gmax - gmin)) * 400);
+    glBegin(GL_LINE_STRIP);
+
+    for(int j = 0; j < 500; j++)
+    {
+        glColor3f(1, 0, 0);
+        glVertex2f(j, ((targetgraph[j] - gmin) / (gmax - gmin)) * 400);
+    }
+
     glEnd();
     glColor3f(1, 1, 1);
     glPopMatrix();
@@ -79,7 +87,7 @@ void motorcontroller::update()
     float error = targetAngle - currentAngle;
     errSum += error * deltatime;
     float output = kp * error + ki * errSum + kd * ((error - lastErr) / deltatime);
-    lastErr=error;
+    lastErr = error;
 
     if(output > 0.0002)
     {
@@ -100,6 +108,7 @@ void motorcontroller::update()
 
         graphend = (graphend + 1) % 500;
         anglegraph[graphend] = currentAngle;
+        targetgraph[graphend] = targetAngle;
     }
 }
 
@@ -118,6 +127,12 @@ motorcontroller::motorcontroller()
 
     this->errSum        = 0;
     this->lastGraphTime = 0;
+
+    for(int i = 0; i < 500; i++)
+    {
+        anglegraph[i] = 0;
+        targetgraph[i] = 0;
+    }
 }
 
 void motorcontroller::setPid(float p, float i, float d)
