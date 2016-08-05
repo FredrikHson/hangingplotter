@@ -5,7 +5,6 @@
 
 class motorcontroller
 {
-    motor m;
     float kp;
     float ki;
     float kd;
@@ -14,9 +13,10 @@ class motorcontroller
     float errSum;
     float lastErr;
 public:
+    motor m;
     float targetAngle;
     float currentAngle;
-    float anglegraph[200];
+    float anglegraph[500];
     int graphend;
 
     void setAngle(float angle);

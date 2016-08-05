@@ -111,6 +111,17 @@ int main(int argc, char* argv[])
             quit = true;
         }
 
+        // move the motor by "hand"
+        if(state[SDL_SCANCODE_LEFT])
+        {
+            mot1.m.update(MOTOR_FORWARDS);
+        }
+
+        if(state[SDL_SCANCODE_RIGHT])
+        {
+            mot1.m.update(MOTOR_BACKWARDS);
+        }
+
         long now = SDL_GetTicks();
         static long last = now;
         deltatime = ((float)(now - last)) / 1000.0f;;
@@ -123,7 +134,7 @@ int main(int argc, char* argv[])
         {
             lastsetTime = abstime;
             timetonextset = (float)(rand() % 2000) / 100;
-            mot1.setAngle(rand()%50);
+            mot1.setAngle((float)(rand() % 314) / 100);
         }
 
         mot1.update();
