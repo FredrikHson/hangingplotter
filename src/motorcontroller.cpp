@@ -11,7 +11,7 @@ void motorcontroller::draw()
     glBegin(GL_LINES);
     glColor3f(1,0,0);
     glVertex2f(0, 0);
-    glVertex2f(sin(targetAngle) * 65, cos(targetAngle) * 65);
+    glVertex2f(sin(targetAngle) * 75, cos(targetAngle) * 75);
     glEnd();
     m.draw();
     glTranslatef(70, -60, 0);

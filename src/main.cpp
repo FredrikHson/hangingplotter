@@ -57,20 +57,6 @@ void Display_Render()
     glLoadIdentity();
     glColor3f(1, 1, 1);
     mot1.draw();
-    glPointSize(5);
-    glBegin(GL_POINTS);
-
-    for(int i = -10; i < 10; i++)
-    {
-        for(int j = -10; j < 10; j++)
-        {
-            glVertex2f(i * 100, j * 100);
-        }
-    }
-
-    glColor3f(0, 0, 1);
-    glVertex2f(0, 0);
-    glEnd();
 }
 int main(int argc, char* argv[])
 {
