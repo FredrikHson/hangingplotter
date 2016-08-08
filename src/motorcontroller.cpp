@@ -132,10 +132,14 @@ void motorcontroller::update(float seconds)
         anglegraph[graphend] = currentAngle;
         targetgraph[graphend] = targetAngle;
     }
+
+    MeasureOvershoot();
 }
 
 void motorcontroller::setAngle(float angle)
 {
+    startAngle = m.getAngle();
+    overshoot = 0;
     targetAngle = angle;
 }
 
@@ -175,15 +179,58 @@ void motorcontroller::setPid(float p, float i, float d)
     this->ki = i;
     this->kd = d;
 }
+
 float motorcontroller::getP()
 {
     return kp;
 }
+
 float motorcontroller::getI()
 {
     return ki;
 }
+
 float motorcontroller::getD()
 {
     return kd;
+}
+
+float motorcontroller::getOverShoot()
+{
+    return overshoot;
+
+}
+
+void motorcontroller::MeasureOvershoot()
+{
+    if(startAngle < targetAngle)
+    {
+        if(m.getAngle() > targetAngle)
+        {
+            float o = m.getAngle() - targetAngle;
+
+            if(o > overshoot)
+            {
+                overshoot = o;
+            }
+        }
+    }
+    else
+    {
+        if(m.getAngle() < targetAngle)
+        {
+            float o = targetAngle - m.getAngle();
+
+            if(o > overshoot)
+            {
+                overshoot = o;
+            }
+        }
+
+    }
+}
+
+bool motorcontroller::operator > (const motorcontroller& other) const
+{
+    return (overshoot > other.overshoot);
 }

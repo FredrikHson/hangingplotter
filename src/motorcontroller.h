@@ -14,6 +14,15 @@ class motorcontroller
     float errSum;
     float lastErr;
     float internal_clock;
+
+    // performance metrics
+
+    float startAngle;
+    float overshoot;
+    float minsteadystate;
+    float maxsteadystate;
+    void MeasureOvershoot();
+
 public:
     motor m;
     float targetAngle;
@@ -24,13 +33,16 @@ public:
 
     void setAngle(float angle);
     float getAngle();
-    void update(float seconds=-1.0f);
+    void update(float seconds = -1.0f);
     void draw();
     motorcontroller();
     void setPid(float p, float i, float d);
     float getP();
     float getI();
     float getD();
+    float getOverShoot();
+
+    bool operator > (const motorcontroller& other) const; // for sorting
 };
 
 #endif //__MOTORCONTROLLER_H__
