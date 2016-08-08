@@ -22,6 +22,7 @@ SDL_RendererInfo displayRendererInfo;
 
 float deltatime;
 float abstime;
+int zoomed = -1;
 #define NUM_MOTORS 110
 motorcontroller motors[NUM_MOTORS];
 
@@ -35,23 +36,18 @@ void sortMotors()
     {
         for(int j = i + 1; j < NUM_MOTORS; j++)
         {
-            if(j == 109 && i == 0)
-            {
-                printf("motor[%i]>motor[%i] %f %f\n", i, j, motors[i].getOverShoot(), motors[j].getOverShoot());
-            }
 
             if(motors[i].getOverShoot() > motors[j].getOverShoot())
             {
                 tmp = motors[j];
                 motors[j] = motors[i];
                 motors[i] = tmp;
-            if(j == 109 && i == 0)
-            {
-                printf("%f\n",motors[i]);
-            }
+
             }
         }
     }
+
+    printf("best:%f worst:%f\n", motors[0].getOverShoot(), motors[109].getOverShoot());
 }
 
 void breedMotors() // kills the last 10
@@ -135,40 +131,50 @@ void Display_Render()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glBegin(GL_LINES);
 
-    for(int i = 0; i < 10; i++)
+    if(zoomed == -1)
     {
-        glVertex2f(i * 192, 0);
-        glVertex2f(i * 192, 1200);
-    }
+        glBegin(GL_LINES);
 
-    for(int i = 0; i < 11; i++)
-    {
-        glVertex2f(0, i * 109);
-        glVertex2f(1920, i * 109);
-    }
-
-    glEnd();
-
-    glTranslatef(60, -50, 0);
-
-    for(int i = 0; i < 10; i++)
-    {
-        glPushMatrix();
-        glTranslatef(i * 192, 0, 0);
-
-        for(int j = 0; j < 11; j++)
+        for(int i = 0; i < 10; i++)
         {
-
-            glTranslatef(0, 109, 0);
-            glPushMatrix();
-            glScalef(0.7, 0.7, 0.7);
-            motors[i + j * 10].draw();
-            glPopMatrix();
+            glVertex2f(i * 192, 0);
+            glVertex2f(i * 192, 1200);
         }
 
-        glPopMatrix();
+        for(int i = 0; i < 11; i++)
+        {
+            glVertex2f(0, i * 109);
+            glVertex2f(1920, i * 109);
+        }
+
+        glEnd();
+
+        glTranslatef(60, -50, 0);
+
+        for(int i = 0; i < 10; i++)
+        {
+            glPushMatrix();
+            glTranslatef(i * 192, 0, 0);
+
+            for(int j = 0; j < 11; j++)
+            {
+
+                glTranslatef(0, 109, 0);
+                glPushMatrix();
+                glScalef(0.7, 0.7, 0.7);
+                motors[i + j * 10].draw();
+                glPopMatrix();
+            }
+
+            glPopMatrix();
+        }
+    }
+    else
+    {
+        glScalef(8,8,1);
+        glTranslatef(60, 80, 0);
+        motors[zoomed].draw();
     }
 }
 int main(int argc, char* argv[])
@@ -212,10 +218,19 @@ int main(int argc, char* argv[])
                 {
                     if(event.button.button == SDL_BUTTON_LEFT)
                     {
-                        int x = event.motion.x / 192;
-                        int y = event.motion.y / 109;
-                        //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
-                        printf("p:%f,i:%f,d:%f\t\tovershoot:%f\n", motors[x + y * 10].getP(), motors[x + y * 10].getI(), motors[x + y * 10].getD(), motors[x + y * 10].getOverShoot());
+                        if(zoomed == -1)
+                        {
+                            int x = event.motion.x / 192;
+                            int y = event.motion.y / 109;
+                            //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
+                            zoomed = x + y * 10;
+                            printf("p:%f,i:%f,d:%f\t\tovershoot:%f\n", motors[zoomed].getP(), motors[zoomed].getI(), motors[zoomed].getD(), motors[zoomed].getOverShoot());
+                        }
+                        else
+                        {
+                            zoomed = -1;
+                        }
+
                     }
 
                     break;
@@ -257,8 +272,13 @@ int main(int argc, char* argv[])
         {
             lastsetTime = abstime;
             timetonextset = (float)(rand() % 200) / 100;
-            sortMotors();
-            breedMotors();
+
+            if(zoomed == -1)
+            {
+                sortMotors();
+                breedMotors();
+            }
+
             //float newangle = (float)(rand() % 360);
 
             //for(int i = 0; i < NUM_MOTORS; i++)
