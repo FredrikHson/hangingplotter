@@ -19,6 +19,7 @@ class motorcontroller
 
     float startAngle;
     float overshoot;
+    bool overshootValid;
     float minsteadystate;
     float maxsteadystate;
     void MeasureOvershoot();
@@ -42,7 +43,8 @@ public:
     float getD();
     float getOverShoot();
 
-    bool operator > (const motorcontroller& other) const; // for sorting
+    void reset();
+
 };
 
 #endif //__MOTORCONTROLLER_H__

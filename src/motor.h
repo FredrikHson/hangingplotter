@@ -22,6 +22,7 @@ public:
     void draw();
     void update(float direction);
     float getAngle();
+    void reset();
 };
 
 #endif //__MOTOR_H__

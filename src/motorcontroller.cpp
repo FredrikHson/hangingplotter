@@ -124,7 +124,7 @@ void motorcontroller::update(float seconds)
         m.update(0);
     }
 
-    if((lastGraphTime + 0.25) < internal_clock)
+    if((lastGraphTime + 0.75) < internal_clock)
     {
         lastGraphTime = internal_clock;
 
@@ -140,6 +140,7 @@ void motorcontroller::setAngle(float angle)
 {
     startAngle = m.getAngle();
     overshoot = 0;
+    overshootValid = false;
     targetAngle = angle;
 }
 
@@ -152,9 +153,9 @@ motorcontroller::motorcontroller()
     this->kp = (float)(rand() % 200) / 10.0f;
     this->ki = (float)(rand() % 200) / 10.0f;
     this->kd = (float)(rand() % 200) / 10.0f;
-    //this->kp = 5.6;
-    //this->ki = 0.3;
-    //this->kd = 0.2;
+    this->kp = 0.0;
+    this->ki = 0.0;
+    this->kd = 0.0;
 
     this->graphend = 0;
 
@@ -170,10 +171,10 @@ motorcontroller::motorcontroller()
 
 void motorcontroller::setPid(float p, float i, float d)
 {
-    if(p != kp || ki != i || kd != d)
-    {
-        printf("p:%f,i:%f,d:%f\n", p, i, d);
-    }
+    //if(p != kp || ki != i || kd != d)
+    //{
+    //printf("p:%f,i:%f,d:%f\n", p, i, d);
+    //}
 
     this->kp = p;
     this->ki = i;
@@ -197,7 +198,14 @@ float motorcontroller::getD()
 
 float motorcontroller::getOverShoot()
 {
-    return overshoot;
+    if(overshootValid)
+    {
+        return overshoot;
+    }
+    else
+    {
+        return __FLT_MAX__;
+    }
 
 }
 
@@ -209,9 +217,10 @@ void motorcontroller::MeasureOvershoot()
         {
             float o = m.getAngle() - targetAngle;
 
-            if(o > overshoot)
+            if(o > overshoot || !overshootValid)
             {
                 overshoot = o;
+                overshootValid = true;
             }
         }
     }
@@ -221,16 +230,19 @@ void motorcontroller::MeasureOvershoot()
         {
             float o = targetAngle - m.getAngle();
 
-            if(o > overshoot)
+            if(o > overshoot || !overshootValid)
             {
                 overshoot = o;
+                overshootValid = true;
             }
         }
 
     }
 }
 
-bool motorcontroller::operator > (const motorcontroller& other) const
+void motorcontroller::reset()
 {
-    return (overshoot > other.overshoot);
+    errSum = 0;
+    lastErr = 0;
+    m.reset();
 }

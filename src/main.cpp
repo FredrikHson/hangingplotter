@@ -22,7 +22,82 @@ SDL_RendererInfo displayRendererInfo;
 
 float deltatime;
 float abstime;
-motorcontroller motors[10 * 11];
+#define NUM_MOTORS 110
+motorcontroller motors[NUM_MOTORS];
+
+
+void sortMotors()
+{
+
+    motorcontroller tmp = motors[0];
+
+    for(int i = 0; i < NUM_MOTORS; i++)
+    {
+        for(int j = i + 1; j < NUM_MOTORS; j++)
+        {
+            if(j == 109 && i == 0)
+            {
+                printf("motor[%i]>motor[%i] %f %f\n", i, j, motors[i].getOverShoot(), motors[j].getOverShoot());
+            }
+
+            if(motors[i].getOverShoot() > motors[j].getOverShoot())
+            {
+                tmp = motors[j];
+                motors[j] = motors[i];
+                motors[i] = tmp;
+            if(j == 109 && i == 0)
+            {
+                printf("%f\n",motors[i]);
+            }
+            }
+        }
+    }
+}
+
+void breedMotors() // kills the last 10
+{
+    float newangle = (float)(rand() % 360) + 50;
+
+    for(int i = 40; i < NUM_MOTORS; i++)
+    {
+        motors[i].reset();
+        motors[i].setAngle(newangle);
+        float kp = 0;
+        float ki = 0;
+        float kd = 0;
+
+        for(int j = 0; j < 10; j++)
+        {
+            int bm = rand() % 40;
+            kp += motors[bm].getP();
+            ki += motors[bm].getI();
+            kd += motors[bm].getD();
+        }
+
+        kp /= 10;
+        ki /= 10;
+        kd /= 10;
+
+
+        motors[i].setPid(kp, ki, kd);
+    }
+
+    for(int i = 100; i < NUM_MOTORS; i++)
+    {
+        float kp = (float)(rand() % 5000) / 100;
+        float ki = (float)(rand() % 5000) / 100;
+        float kd = (float)(rand() % 5000) / 100;
+
+
+        motors[i].setPid(kp, ki, kd);
+    }
+
+    for(int i = 0; i < NUM_MOTORS; i++)
+    {
+        motors[i].setAngle(newangle);
+    }
+}
+
 void Display_InitGL()
 {
     SDL_GL_SetSwapInterval(1);
@@ -112,6 +187,11 @@ int main(int argc, char* argv[])
 
     bool quit = false;
 
+    for(int i = 0; i < NUM_MOTORS; i++)
+    {
+        motors[i].setAngle(180);
+    }
+
     while(!quit)
     {
 
@@ -151,6 +231,19 @@ int main(int argc, char* argv[])
             quit = true;
         }
 
+        static bool space_held = false;
+
+        if(state[SDL_SCANCODE_SPACE] && !space_held)
+        {
+            space_held = true;
+            sortMotors();
+            breedMotors();
+        }
+        else if(state[SDL_SCANCODE_SPACE] != true)
+        {
+            space_held = false;
+        }
+
 
         long now = SDL_GetTicks();
         static long last = now;
@@ -163,16 +256,15 @@ int main(int argc, char* argv[])
         if(abstime >= lastsetTime + timetonextset)
         {
             lastsetTime = abstime;
-            timetonextset = (float)(rand() % 2000) / 100;
-            float newangle = (float)(rand() % 360);
+            timetonextset = (float)(rand() % 200) / 100;
+            sortMotors();
+            breedMotors();
+            //float newangle = (float)(rand() % 360);
 
-            for(int i = 0; i < 10; i++)
-            {
-                for(int j = 0; j < 11; j++)
-                {
-                    motors[i + j * 10].setAngle(newangle);
-                }
-            }
+            //for(int i = 0; i < NUM_MOTORS; i++)
+            //{
+            //motors[i].setAngle(newangle);
+            //}
         }
 
 
@@ -236,7 +328,7 @@ int main(int argc, char* argv[])
         #pragma omp parallel
         #pragma omp for
 
-        for(int i = 0; i < 10*11; i++)
+        for(int i = 0; i < NUM_MOTORS; i++)
         {
             for(int k = 0; k < 100; k++)
             {

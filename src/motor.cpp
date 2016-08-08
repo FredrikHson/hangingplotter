@@ -120,3 +120,9 @@ float motor::getAngle()
 {
     return angle*(180.0f/M_PI);
 }
+void motor::reset()
+{
+    currentspeed =0;
+    angle        =0;
+
+}
