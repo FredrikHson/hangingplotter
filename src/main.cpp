@@ -16,9 +16,7 @@ SDL_RendererInfo displayRendererInfo;
 
 float deltatime;
 float abstime;
-motorcontroller mot1;
-motorcontroller mot2;
-
+motorcontroller motors[10][11];
 void Display_InitGL()
 {
     SDL_GL_SetSwapInterval(1);
@@ -31,7 +29,7 @@ void Display_InitGL()
     glMatrixMode(GL_PROJECTION_MATRIX);
     glLoadIdentity();
     //gluPerspective(45.0f, ratio, 0.1f, 100.0f);
-    glOrtho(-100 , 100 , 100 , -100 , -100, 100);
+    glOrtho(0 , 200 , 200 , 0 , -100, 100);
     //glScalef(1,ratio,1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -56,10 +54,41 @@ void Display_Render()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glColor3f(1, 1, 1);
-    mot1.draw();
-    glTranslatef(-700,0,0);
-    mot2.draw();
+    glBegin(GL_LINES);
+
+    for(int i = 0; i < 10; i++)
+    {
+        glVertex2f(i * 192, 0);
+        glVertex2f(i * 192, 1200);
+    }
+
+    for(int i = 0; i < 11; i++)
+    {
+        glVertex2f(0, i * 109);
+        glVertex2f(1920, i * 109);
+    }
+
+    glEnd();
+
+    glTranslatef(60, -50, 0);
+
+    for(int i = 0; i < 10; i++)
+    {
+        glPushMatrix();
+        glTranslatef(i * 192, 0, 0);
+
+        for(int j = 0; j < 11; j++)
+        {
+
+            glTranslatef(0, 109, 0);
+            glPushMatrix();
+            glScalef(0.7, 0.7, 0.7);
+            motors[i][j].draw();
+            glPopMatrix();
+        }
+
+        glPopMatrix();
+    }
 }
 int main(int argc, char* argv[])
 {
@@ -88,8 +117,24 @@ int main(int argc, char* argv[])
             switch(event.type)
             {
                 case SDL_QUIT:
+                {
                     quit = true;
                     break;
+                }
+
+                case SDL_MOUSEBUTTONDOWN:
+                {
+                    if(event.button.button == SDL_BUTTON_LEFT)
+                    {
+                        int x = event.motion.x / 192;
+                        int y = event.motion.y / 109;
+                        //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
+                        printf("p:%f,i:%f,d:%f\n", motors[x][y].getP(), motors[x][y].getI(), motors[x][y].getD());
+                    }
+
+                    break;
+                }
+
             }
         }
 
@@ -100,16 +145,6 @@ int main(int argc, char* argv[])
             quit = true;
         }
 
-        // move the motor by "hand"
-        if(state[SDL_SCANCODE_LEFT])
-        {
-            mot1.m.update(MOTOR_FORWARDS);
-        }
-
-        if(state[SDL_SCANCODE_RIGHT])
-        {
-            mot1.m.update(MOTOR_BACKWARDS);
-        }
 
         long now = SDL_GetTicks();
         static long last = now;
@@ -123,16 +158,92 @@ int main(int argc, char* argv[])
         {
             lastsetTime = abstime;
             timetonextset = (float)(rand() % 2000) / 100;
-            mot1.setAngle((float)(rand() % 314) / 100);
-            mot2.setAngle((float)(rand() % 314) / 100);
+            float newangle = (float)(rand() % 360);
+
+            for(int i = 0; i < 10; i++)
+            {
+                for(int j = 0; j < 11; j++)
+                {
+                    motors[i][j].setAngle(newangle);
+                }
+            }
         }
 
-        mot1.update();
-        mot2.update();
+
+        static float kp = 3;
+        static float ki = 0.5;
+        static float kd = 0.5;
+
+        if(state[SDL_SCANCODE_U])
+        {
+            kp += deltatime;
+        }
+
+        if(state[SDL_SCANCODE_J])
+        {
+            kp -= deltatime;
+
+            if(kp < 0)
+            {
+                kp = 0;
+            }
+        }
+
+        if(state[SDL_SCANCODE_I])
+        {
+            ki += deltatime;
+        }
+
+        if(state[SDL_SCANCODE_K])
+        {
+            ki -= deltatime;
+
+            if(ki < 0)
+            {
+                ki = 0;
+            }
+        }
+
+        if(state[SDL_SCANCODE_O])
+        {
+            kd += deltatime;
+        }
+
+        if(state[SDL_SCANCODE_L])
+        {
+            kd -= deltatime;
+
+            if(kd < 0)
+            {
+                kd = 0;
+            }
+        }
+
+
+        //for(int i = 0; i < 10; i++)
+        //{
+        //for(int j = 0; j < 11; j++)
+        //{
+        //motors[i][j].setPid(kp, ki, kd);
+        //}
+        //}
+
+        for(int i = 0; i < 10; i++)
+        {
+            for(int j = 0; j < 11; j++)
+            {
+                for(int k = 0; k < 10; k++)
+                {
+
+                    motors[i][j].update(deltatime);
+                }
+            }
+        }
+
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(-1920 / 2 , 1920 / 2 , 600, -600 , -100, 100);
+        glOrtho(0, 1920  , 1200, 0 , -100, 100);
         glMatrixMode(GL_MODELVIEW);
 
         Display_Render();

@@ -8,7 +8,7 @@ motor::motor()
     this->angle         = 0;
     this->currentspeed  = 0;
     this->acceleration  = 50;
-    this->deceleration  = this->acceleration*0.1;
+    this->deceleration  = this->acceleration * 0.1;
     this->maxspeed      = 60;
     this->lastDrawangle = 0;
     this->currdir       = 0;
@@ -57,15 +57,25 @@ void motor::draw()
 }
 void motor::update(float direction)
 {
-    if(direction > 0.5)
+    if(direction > 1)
+    {
+        direction = 1;
+    }
+
+    if(direction < -1)
+    {
+        direction = -1;
+    }
+
+    if(direction > 0.0005)
     {
         currdir = 1;
-        currentspeed += acceleration * deltatime;
+        currentspeed += acceleration * deltatime * direction;
     }
-    else if(direction < -0.5)
+    else if(direction < -0.0005)
     {
         currdir = -1;
-        currentspeed -= acceleration * deltatime;
+        currentspeed += acceleration * deltatime * direction;
     }
     else
     {
@@ -108,5 +118,5 @@ void motor::update(float direction)
 
 float motor::getAngle()
 {
-    return angle;
+    return angle*(180.0f/M_PI);
 }

@@ -2,6 +2,8 @@
 #include "globals.h"
 #include <math.h>
 #include "motorcontroller.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 void motorcontroller::draw()
@@ -11,24 +13,27 @@ void motorcontroller::draw()
     glBegin(GL_LINES);
     glColor3f(1, 0, 0);
     glVertex2f(0, 0);
-    glVertex2f(sin(targetAngle) * 75, cos(targetAngle) * 75);
+    float radangle = targetAngle / (180.0f / M_PI);
+    glVertex2f(sin(radangle) * 75, cos(radangle) * 75);
     glEnd();
     m.draw();
-    glTranslatef(70, -60, 0);
+    glTranslatef(80, -60, 0);
 
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBegin(GL_QUADS);
     glColor3f(1, 1, 1);
     glVertex2f(0, 0);
-    glVertex2f(500, 0);
-    glVertex2f(500, 400);
-    glVertex2f(0, 400);
+    glVertex2f(GRAPH_LENGTH, 0);
+    glVertex2f(GRAPH_LENGTH, GRAPH_HEIGHT);
+    glVertex2f(0, GRAPH_HEIGHT);
     glEnd();
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     float gmin = anglegraph[0];
     float gmax = anglegraph[0];
 
-    for(int j = 0; j < 500; j++)
+    for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         if(gmin > anglegraph[j])
         {
@@ -41,7 +46,7 @@ void motorcontroller::draw()
         }
     }
 
-    for(int j = 0; j < 500; j++)
+    for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         if(gmin > targetgraph[j])
         {
@@ -60,53 +65,70 @@ void motorcontroller::draw()
 
     glBegin(GL_LINE_STRIP);
 
-    for(int j = 0; j < 500; j++)
+    for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         glColor3f(0, 0, 1);
-        glVertex2f(j, ((anglegraph[j] - gmin) / (gmax - gmin)) * 400);
+        glVertex2f(j, ((anglegraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
     }
 
     glEnd();
     glBegin(GL_LINE_STRIP);
 
-    for(int j = 0; j < 500; j++)
+    for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         glColor3f(1, 0, 0);
-        glVertex2f(j, ((targetgraph[j] - gmin) / (gmax - gmin)) * 400);
+        glVertex2f(j, ((targetgraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
     }
 
+    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(0, 1, 0);
+    glVertex2f(graphend + 1, 0);
+    glVertex2f(graphend + 1, GRAPH_HEIGHT);
     glEnd();
     glColor3f(1, 1, 1);
     glPopMatrix();
 }
 
-void motorcontroller::update()
+void motorcontroller::update(float seconds)
 {
+    if(seconds < 0)
+    {
+        seconds = deltatime;
+        internal_clock = abstime;
+    }
+    else
+    {
+        internal_clock += seconds;
+    }
+
     currentAngle = m.getAngle();
 
     float error = targetAngle - currentAngle;
-    errSum += error * deltatime;
-    float output = kp * error + ki * errSum + kd * ((error - lastErr) / deltatime);
+    errSum += error * seconds;
+    float output = kp * error + ki * errSum + kd * ((error - lastErr) / seconds);
     lastErr = error;
+    //printf("errsum=%f error:%f\n", errSum, error);
+#define DEADZONE 0.001
 
-    if(output > 0.0002)
+    if(output > DEADZONE)
     {
-        m.update(1);
+        m.update(output);
     }
-    else if(output < -0.0002)
+    else if(output < -DEADZONE)
     {
-        m.update(-1);
+        m.update(output);
     }
     else
     {
         m.update(0);
     }
 
-    if((lastGraphTime + 0.05) < abstime)
+    if((lastGraphTime + 0.25) < internal_clock)
     {
-        lastGraphTime = abstime;
+        lastGraphTime = internal_clock;
 
-        graphend = (graphend + 1) % 500;
+        graphend = (graphend + 1) % GRAPH_LENGTH;
         anglegraph[graphend] = currentAngle;
         targetgraph[graphend] = targetAngle;
     }
@@ -117,18 +139,25 @@ void motorcontroller::setAngle(float angle)
     targetAngle = angle;
 }
 
+float motorcontroller::getAngle()
+{
+    return targetAngle;
+}
 motorcontroller::motorcontroller()
 {
-    this->kp = 5.6;
-    this->ki = 0.3;
-    this->kd = 0.2;
+    this->kp = (float)(rand() % 200) / 10.0f;
+    this->ki = (float)(rand() % 200) / 10.0f;
+    this->kd = (float)(rand() % 200) / 10.0f;
+    //this->kp = 5.6;
+    //this->ki = 0.3;
+    //this->kd = 0.2;
 
     this->graphend = 0;
 
     this->errSum        = 0;
     this->lastGraphTime = 0;
 
-    for(int i = 0; i < 500; i++)
+    for(int i = 0; i < GRAPH_LENGTH; i++)
     {
         anglegraph[i] = 0;
         targetgraph[i] = 0;
@@ -137,7 +166,24 @@ motorcontroller::motorcontroller()
 
 void motorcontroller::setPid(float p, float i, float d)
 {
+    if(p != kp || ki != i || kd != d)
+    {
+        printf("p:%f,i:%f,d:%f\n", p, i, d);
+    }
+
     this->kp = p;
     this->ki = i;
     this->kd = d;
+}
+float motorcontroller::getP()
+{
+    return kp;
+}
+float motorcontroller::getI()
+{
+    return ki;
+}
+float motorcontroller::getD()
+{
+    return kd;
 }
