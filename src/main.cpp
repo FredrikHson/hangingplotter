@@ -5,6 +5,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <GL/glu.h>
+#ifdef _OPENMP
+    #include <omp.h>
+#else
+    #define omp_get_thread_num() 0
+    #define omp_get_num_threads() 1
+#endif
 
 #include "globals.h"
 #include "motor.h"
@@ -16,7 +22,7 @@ SDL_RendererInfo displayRendererInfo;
 
 float deltatime;
 float abstime;
-motorcontroller motors[10][11];
+motorcontroller motors[10 * 11];
 void Display_InitGL()
 {
     SDL_GL_SetSwapInterval(1);
@@ -83,7 +89,7 @@ void Display_Render()
             glTranslatef(0, 109, 0);
             glPushMatrix();
             glScalef(0.7, 0.7, 0.7);
-            motors[i][j].draw();
+            motors[i + j * 10].draw();
             glPopMatrix();
         }
 
@@ -129,7 +135,7 @@ int main(int argc, char* argv[])
                         int x = event.motion.x / 192;
                         int y = event.motion.y / 109;
                         //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
-                        printf("p:%f,i:%f,d:%f\n", motors[x][y].getP(), motors[x][y].getI(), motors[x][y].getD());
+                        printf("p:%f,i:%f,d:%f\t\tovershoot:%f\n", motors[x + y * 10].getP(), motors[x + y * 10].getI(), motors[x + y * 10].getD(), motors[x + y * 10].getOverShoot());
                     }
 
                     break;
@@ -164,7 +170,7 @@ int main(int argc, char* argv[])
             {
                 for(int j = 0; j < 11; j++)
                 {
-                    motors[i][j].setAngle(newangle);
+                    motors[i + j * 10].setAngle(newangle);
                 }
             }
         }
@@ -224,19 +230,18 @@ int main(int argc, char* argv[])
         //{
         //for(int j = 0; j < 11; j++)
         //{
-        //motors[i][j].setPid(kp, ki, kd);
+        //motors[i+j*10].setPid(kp, ki, kd);
         //}
         //}
+        #pragma omp parallel
+        #pragma omp for
 
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 10*11; i++)
         {
-            for(int j = 0; j < 11; j++)
+            for(int k = 0; k < 100; k++)
             {
-                for(int k = 0; k < 10; k++)
-                {
 
-                    motors[i][j].update(deltatime);
-                }
+                motors[i].update(deltatime);
             }
         }
 
