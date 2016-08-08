@@ -7,8 +7,8 @@ motor::motor()
 {
     this->angle         = 0;
     this->currentspeed  = 0;
-    this->acceleration  = 50;
-    this->deceleration  = this->acceleration * 0.1;
+    this->acceleration  = 5;
+    this->deceleration  = this->acceleration * 0.5;
     this->maxspeed      = 60;
     this->lastDrawangle = 0;
     this->currdir       = 0;

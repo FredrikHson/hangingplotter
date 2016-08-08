@@ -42,19 +42,16 @@ void sortMotors()
                 tmp = motors[j];
                 motors[j] = motors[i];
                 motors[i] = tmp;
-
             }
         }
     }
-
-    printf("best:%f worst:%f\n", motors[0].getScore(), motors[109].getScore());
 }
 
 void breedMotors() // kills the last 10
 {
     float newangle = (float)(rand() % 360) + 50;
 
-    for(int i = 40; i < NUM_MOTORS; i++)
+    for(int i = 40; i < 80; i++)
     {
         motors[i].reset();
         motors[i].setAngle(newangle);
@@ -78,14 +75,10 @@ void breedMotors() // kills the last 10
         motors[i].setPid(kp, ki, kd);
     }
 
-    for(int i = 100; i < NUM_MOTORS; i++)
+    for(int i = 80; i < NUM_MOTORS; i++)
     {
-        float kp = (float)(rand() % 5000) / 100;
-        float ki = (float)(rand() % 5000) / 100;
-        float kd = (float)(rand() % 5000) / 100;
-
-
-        motors[i].setPid(kp, ki, kd);
+        motors[i].reset();
+        motors[i].setRandom();
     }
 
     for(int i = 0; i < NUM_MOTORS; i++)
@@ -105,9 +98,7 @@ void Display_InitGL()
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     glMatrixMode(GL_PROJECTION_MATRIX);
     glLoadIdentity();
-    //gluPerspective(45.0f, ratio, 0.1f, 100.0f);
     glOrtho(0 , 200 , 200 , 0 , -100, 100);
-    //glScalef(1,ratio,1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -183,11 +174,6 @@ int main(int argc, char* argv[])
     SDL_CreateWindowAndRenderer(1920, 1200, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
     SDL_GetRendererInfo(displayRenderer, &displayRendererInfo);
 
-    if((displayRendererInfo.flags & SDL_RENDERER_ACCELERATED) == 0 ||
-            (displayRendererInfo.flags & SDL_RENDERER_TARGETTEXTURE) == 0)
-    {
-    }
-
     Display_InitGL();
     Display_SetViewport(1920, 1200);
 
@@ -222,7 +208,6 @@ int main(int argc, char* argv[])
                         {
                             int x = event.motion.x / 192;
                             int y = event.motion.y / 109;
-                            //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
                             zoomed = x + y * 10;
                             printf("p:%f,i:%f,d:%f\t\tovershoot:%f steady_error:%f\n", motors[zoomed].getP(), motors[zoomed].getI(), motors[zoomed].getD(), motors[zoomed].getOverShoot(), motors[zoomed].getSteadyState());
                         }
@@ -279,12 +264,6 @@ int main(int argc, char* argv[])
                 breedMotors();
             }
 
-            //float newangle = (float)(rand() % 360);
-
-            //for(int i = 0; i < NUM_MOTORS; i++)
-            //{
-            //motors[i].setAngle(newangle);
-            //}
         }
 
 

@@ -108,7 +108,6 @@ void motorcontroller::update(float seconds, float graphspeed)
     errSum += error * seconds;
     float output = kp * error + ki * errSum + kd * ((error - lastErr) / seconds);
     lastErr = error;
-    //printf("errsum=%f error:%f\n", errSum, error);
 #define DEADZONE 0.001
 
     if(output > DEADZONE)
@@ -152,13 +151,8 @@ float motorcontroller::getAngle()
 }
 motorcontroller::motorcontroller()
 {
-    this->kp = (float)(rand() % 200) / 10.0f;
-    this->ki = (float)(rand() % 200) / 10.0f;
-    this->kd = (float)(rand() % 200) / 10.0f;
-    this->kp = 0.0;
-    this->ki = 0.0;
-    this->kd = 0.0;
 
+    setRandom();
     this->graphend = 0;
 
     this->errSum        = 0;
@@ -173,10 +167,6 @@ motorcontroller::motorcontroller()
 
 void motorcontroller::setPid(float p, float i, float d)
 {
-    //if(p != kp || ki != i || kd != d)
-    //{
-    //printf("p:%f,i:%f,d:%f\n", p, i, d);
-    //}
 
     this->kp = p;
     this->ki = i;
@@ -289,4 +279,11 @@ void motorcontroller::reset()
 float motorcontroller::getScore()
 {
     return getSteadyState() * 10 + getOverShoot();
+}
+
+void motorcontroller::setRandom()
+{
+    kp = (float)(rand() % 5000) / 100;
+    ki = (float)(rand() % 5000) / 100;
+    kd = (float)(rand() % 5000) / 100;
 }

@@ -52,6 +52,7 @@ public:
 
     float getScore();
     void reset();
+    void setRandom();
 
 };
 
