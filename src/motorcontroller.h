@@ -4,6 +4,8 @@
 #include "motor.h"
 #define GRAPH_LENGTH 100
 #define GRAPH_HEIGHT 100
+#define STEADY_TIME 1.0f
+
 class motorcontroller
 {
     float kp;
@@ -17,12 +19,15 @@ class motorcontroller
 
     // performance metrics
 
+    float changeTime;
     float startAngle;
     float overshoot;
     bool overshootValid;
     float minsteadystate;
     float maxsteadystate;
+    bool steadystateValid;
     void MeasureOvershoot();
+    void MeasureSteadyState();
 
 public:
     motor m;
@@ -34,7 +39,7 @@ public:
 
     void setAngle(float angle);
     float getAngle();
-    void update(float seconds = -1.0f);
+    void update(float seconds = -1.0f, float graphspeed = 0.75f);
     void draw();
     motorcontroller();
     void setPid(float p, float i, float d);
@@ -42,7 +47,10 @@ public:
     float getI();
     float getD();
     float getOverShoot();
+    float getSteadyState();
 
+
+    float getScore();
     void reset();
 
 };

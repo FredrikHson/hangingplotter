@@ -90,7 +90,7 @@ void motorcontroller::draw()
     glPopMatrix();
 }
 
-void motorcontroller::update(float seconds)
+void motorcontroller::update(float seconds, float graphspeed)
 {
     if(seconds < 0)
     {
@@ -124,7 +124,7 @@ void motorcontroller::update(float seconds)
         m.update(0);
     }
 
-    if((lastGraphTime + 0.75) < internal_clock)
+    if((lastGraphTime + graphspeed) < internal_clock)
     {
         lastGraphTime = internal_clock;
 
@@ -134,6 +134,7 @@ void motorcontroller::update(float seconds)
     }
 
     MeasureOvershoot();
+    MeasureSteadyState();
 }
 
 void motorcontroller::setAngle(float angle)
@@ -142,6 +143,7 @@ void motorcontroller::setAngle(float angle)
     overshoot = 0;
     overshootValid = false;
     targetAngle = angle;
+    changeTime = internal_clock;
 }
 
 float motorcontroller::getAngle()
@@ -208,6 +210,17 @@ float motorcontroller::getOverShoot()
     }
 
 }
+float motorcontroller::getSteadyState()
+{
+    if(changeTime + STEADY_TIME < internal_clock && steadystateValid)
+    {
+        return (targetAngle - minsteadystate) - (targetAngle - maxsteadystate);
+    }
+    else
+    {
+        return __FLT_MAX__;
+    }
+}
 
 void motorcontroller::MeasureOvershoot()
 {
@@ -240,9 +253,40 @@ void motorcontroller::MeasureOvershoot()
     }
 }
 
+void motorcontroller::MeasureSteadyState()
+{
+    if(changeTime + STEADY_TIME < internal_clock && overshootValid)
+    {
+        steadystateValid = true;
+        float m_angle = m.getAngle();
+
+        if(m_angle > maxsteadystate)
+        {
+            maxsteadystate = m_angle;
+        }
+
+        if(m_angle < minsteadystate)
+        {
+            minsteadystate = m_angle;
+        }
+    }
+    else
+    {
+        steadystateValid = false;
+        minsteadystate = __FLT_MAX__;
+        maxsteadystate = __FLT_MIN__;
+    }
+}
+
 void motorcontroller::reset()
 {
     errSum = 0;
     lastErr = 0;
     m.reset();
+}
+
+
+float motorcontroller::getScore()
+{
+    return getSteadyState() * 10 + getOverShoot();
 }

@@ -37,7 +37,7 @@ void sortMotors()
         for(int j = i + 1; j < NUM_MOTORS; j++)
         {
 
-            if(motors[i].getOverShoot() > motors[j].getOverShoot())
+            if(motors[i].getScore() > motors[j].getScore())
             {
                 tmp = motors[j];
                 motors[j] = motors[i];
@@ -47,7 +47,7 @@ void sortMotors()
         }
     }
 
-    printf("best:%f worst:%f\n", motors[0].getOverShoot(), motors[109].getOverShoot());
+    printf("best:%f worst:%f\n", motors[0].getScore(), motors[109].getScore());
 }
 
 void breedMotors() // kills the last 10
@@ -172,7 +172,7 @@ void Display_Render()
     }
     else
     {
-        glScalef(8,8,1);
+        glScalef(8, 8, 1);
         glTranslatef(60, 80, 0);
         motors[zoomed].draw();
     }
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
                             int y = event.motion.y / 109;
                             //printf("mouseclicked:%i,%i\n", event.motion.x / 192, event.motion.y / 109);
                             zoomed = x + y * 10;
-                            printf("p:%f,i:%f,d:%f\t\tovershoot:%f\n", motors[zoomed].getP(), motors[zoomed].getI(), motors[zoomed].getD(), motors[zoomed].getOverShoot());
+                            printf("p:%f,i:%f,d:%f\t\tovershoot:%f steady_error:%f\n", motors[zoomed].getP(), motors[zoomed].getI(), motors[zoomed].getD(), motors[zoomed].getOverShoot(), motors[zoomed].getSteadyState());
                         }
                         else
                         {
@@ -338,25 +338,38 @@ int main(int argc, char* argv[])
         }
 
 
-        //for(int i = 0; i < 10; i++)
-        //{
-        //for(int j = 0; j < 11; j++)
-        //{
-        //motors[i+j*10].setPid(kp, ki, kd);
-        //}
-        //}
-        #pragma omp parallel
-        #pragma omp for
-
-        for(int i = 0; i < NUM_MOTORS; i++)
+        if(zoomed == -1)
         {
-            for(int k = 0; k < 100; k++)
-            {
+            #pragma omp parallel
+            #pragma omp for
 
-                motors[i].update(deltatime);
+            for(int i = 0; i < NUM_MOTORS; i++)
+            {
+                for(int k = 0; k < 100; k++)
+                {
+
+                    motors[i].update(deltatime);
+                }
             }
         }
+        else
+        {
+            float angle = motors[zoomed].getAngle();
 
+            if(state[SDL_SCANCODE_LEFT])
+            {
+                angle += deltatime * 20;
+                motors[zoomed].setAngle(angle);
+            }
+
+            if(state[SDL_SCANCODE_RIGHT])
+            {
+                angle -= deltatime * 20;
+                motors[zoomed].setAngle(angle);
+            }
+
+            motors[zoomed].update(deltatime, 0.05);
+        }
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
