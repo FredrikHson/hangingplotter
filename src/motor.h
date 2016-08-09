@@ -3,9 +3,9 @@
 
 // simulated motor
 
-#define MOTOR_BACKWARDS -1.0f
-#define MOTOR_STOP 0.0f
-#define MOTOR_FORWARDS 1.0f
+#define MOTOR_BACKWARDS -1.0
+#define MOTOR_STOP 0.0
+#define MOTOR_FORWARDS 1.0
 
 class motor
 {

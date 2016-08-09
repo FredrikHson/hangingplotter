@@ -93,8 +93,8 @@ void Display_InitGL()
     glEnable(GL_MULTISAMPLE);
 
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearDepth(1.0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -121,7 +121,7 @@ int Display_SetViewport(int width, int height)
 
 void Display_Render()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
 
         long now = SDL_GetTicks();
         static long last = now;
-        deltatime = ((float)(now - last)) / 1000.0f;;
+        deltatime = ((float)(now - last)) / 1000.0;
         last = now;
         abstime += deltatime;
         static float lastsetTime = abstime + 0.2;
@@ -340,13 +340,13 @@ int main(int argc, char* argv[])
             if(state[SDL_SCANCODE_LEFT])
             {
                 angle += deltatime * 20;
-                motors[zoomed].setAngle(angle);
+                motors[zoomed].setAngle(angle, false);
             }
 
             if(state[SDL_SCANCODE_RIGHT])
             {
                 angle -= deltatime * 20;
-                motors[zoomed].setAngle(angle);
+                motors[zoomed].setAngle(angle, false);
             }
 
             motors[zoomed].update(deltatime, 0.05);

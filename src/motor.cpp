@@ -118,7 +118,7 @@ void motor::update(float direction)
 
 float motor::getAngle()
 {
-    return angle * (180.0f / M_PI);
+    return angle * (180.0 / M_PI);
 }
 void motor::reset()
 {

@@ -4,7 +4,7 @@
 #include "motor.h"
 #define GRAPH_LENGTH 500
 #define GRAPH_HEIGHT 100
-#define STEADY_TIME 1.0f
+#define STEADY_TIME 1.0
 
 class motorcontroller
 {
@@ -37,9 +37,9 @@ public:
     float targetgraph[GRAPH_LENGTH];
     int graphend;
 
-    void setAngle(float angle);
+    void setAngle(float angle, bool resetInternalClock = true);
     float getAngle();
-    void update(float seconds = -1.0f, float graphspeed = 0.75f);
+    void update(float seconds = -1.0, float graphspeed = 0.75);
     void draw();
     motorcontroller();
     void setPid(float p, float i, float d);
