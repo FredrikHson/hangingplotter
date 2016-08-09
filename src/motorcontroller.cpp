@@ -24,8 +24,8 @@ void motorcontroller::draw()
     glBegin(GL_QUADS);
     glColor3f(1, 1, 1);
     glVertex2f(0, 0);
-    glVertex2f(GRAPH_LENGTH, 0);
-    glVertex2f(GRAPH_LENGTH, GRAPH_HEIGHT);
+    glVertex2f(GRAPH_LENGTH / 5.0f, 0);
+    glVertex2f(GRAPH_LENGTH / 5.0f, GRAPH_HEIGHT);
     glVertex2f(0, GRAPH_HEIGHT);
     glEnd();
 
@@ -68,7 +68,7 @@ void motorcontroller::draw()
     for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         glColor3f(0, 0, 1);
-        glVertex2f(j, ((anglegraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
+        glVertex2f((float)(j) / 5.0f, ((anglegraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
     }
 
     glEnd();
@@ -77,14 +77,14 @@ void motorcontroller::draw()
     for(int j = 0; j < GRAPH_LENGTH; j++)
     {
         glColor3f(1, 0, 0);
-        glVertex2f(j, ((targetgraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
+        glVertex2f((float)(j) / 5.0f, ((targetgraph[j] - gmin) / (gmax - gmin)) * GRAPH_HEIGHT);
     }
 
     glEnd();
     glBegin(GL_LINES);
     glColor3f(0, 1, 0);
-    glVertex2f(graphend + 1, 0);
-    glVertex2f(graphend + 1, GRAPH_HEIGHT);
+    glVertex2f((float)(graphend + 1) / 5.0f, 0);
+    glVertex2f((float)(graphend + 1) / 5.0f, GRAPH_HEIGHT);
     glEnd();
     glColor3f(1, 1, 1);
     glPopMatrix();

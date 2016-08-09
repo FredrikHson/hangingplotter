@@ -46,7 +46,7 @@ void motor::draw()
         glColor3f(0, 1, 0);
     }
 
-    for(float i = 0; i < M_PI * 2; i += 0.10)
+    for(float i = 0; i < M_PI * 2; i += 0.050)
     {
         glVertex2f(sin(i) * 50, cos(i) * 50);
     }

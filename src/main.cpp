@@ -90,6 +90,8 @@ void breedMotors() // kills the last 10
 void Display_InitGL()
 {
     SDL_GL_SetSwapInterval(1);
+    glEnable(GL_MULTISAMPLE);
+
     glShadeModel(GL_SMOOTH);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
@@ -171,6 +173,8 @@ void Display_Render()
 int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
     SDL_CreateWindowAndRenderer(1920, 1200, SDL_WINDOW_OPENGL, &displayWindow, &displayRenderer);
     SDL_GetRendererInfo(displayRenderer, &displayRendererInfo);
 

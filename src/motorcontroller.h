@@ -2,7 +2,7 @@
 #define __MOTORCONTROLLER_H__
 
 #include "motor.h"
-#define GRAPH_LENGTH 100
+#define GRAPH_LENGTH 500
 #define GRAPH_HEIGHT 100
 #define STEADY_TIME 1.0f
 
