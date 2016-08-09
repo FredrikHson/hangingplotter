@@ -250,13 +250,11 @@ int main(int argc, char* argv[])
         deltatime = ((float)(now - last)) / 1000.0f;;
         last = now;
         abstime += deltatime;
-        static float lastsetTime = abstime;
-        static float timetonextset = 0;
+        static float lastsetTime = abstime + 0.2;
 
-        if(abstime >= lastsetTime + timetonextset)
+        if(abstime >= lastsetTime)
         {
-            lastsetTime = abstime;
-            timetonextset = (float)(rand() % 200) / 100;
+            lastsetTime = abstime + 0.2;
 
             if(zoomed == -1)
             {
@@ -324,7 +322,7 @@ int main(int argc, char* argv[])
 
             for(int i = 0; i < NUM_MOTORS; i++)
             {
-                for(int k = 0; k < 100; k++)
+                for(int k = 0; k < 10000; k++)
                 {
 
                     motors[i].update(deltatime);
