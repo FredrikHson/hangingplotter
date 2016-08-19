@@ -25,6 +25,7 @@ set(COMMON_SRC
     "src/main.cpp"
     "src/motor.cpp"
     "src/motorcontroller.cpp"
+    "src/motionplanner.cpp"
     )
 
 include_directories(
