@@ -15,6 +15,7 @@
 #include "globals.h"
 #include "motor.h"
 #include "motorcontroller.h"
+#include "motionplanner.h"
 
 SDL_Window* displayWindow;
 SDL_Renderer* displayRenderer;
@@ -25,6 +26,9 @@ float abstime;
 int zoomed = -1;
 #define NUM_MOTORS 110
 motorcontroller motors[NUM_MOTORS];
+motionplanner planner;
+int view_height;
+int view_width;
 
 
 void sortMotors()
@@ -114,6 +118,8 @@ int Display_SetViewport(int width, int height)
         height = 1;
     }
 
+    view_height = height;
+    view_width = width;
     ratio = (GLfloat)width / (GLfloat)height;
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
     return 1;
@@ -124,6 +130,7 @@ void Display_Render()
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+    #if 0
 
     if(zoomed == -1)
     {
@@ -169,6 +176,9 @@ void Display_Render()
         glTranslatef(60, 80, 0);
         motors[zoomed].draw();
     }
+
+    #endif
+    planner.debugDraw();
 }
 int main(int argc, char* argv[])
 {

@@ -24,11 +24,13 @@ class motionplanner
 {
 
     float motorDistance;
-    float mat[9]; // 3x3 matrix scale+rot+translation
+    float mat[6]; // 3x2 matrix scale+rot+translation
     // init by setting 3 corners of the paper
     // rotation comes from the longest edge
     // also preprocess the entire motion path to get the
     // aspect ratio to determine the largest image that can be drawn
+    float calibration[6];
+    float calib_len[2];
 public:
     motionplanner();
     ~motionplanner();
@@ -38,6 +40,11 @@ public:
     void initMatrix(float x1, float y1,
                     float x2, float y2,
                     float x3, float y3);
+    void fitBox(float minx, float miny,
+                float maxx, float maxy);
+    void vecmul(float inx, float iny,
+                float& outx, float& outy);
+    void debugDraw();
 };
 
 

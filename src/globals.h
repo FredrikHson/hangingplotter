@@ -3,5 +3,7 @@
 
 extern float deltatime;
 extern float abstime;
+extern int view_width;
+extern int view_height;
 
 #endif //__GLOBALS_H__
