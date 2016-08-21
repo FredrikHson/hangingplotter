@@ -52,10 +52,10 @@ void motionplanner::initMatrix(float x1, float y1,
         s2 /= len2;
         mat[0] = c2;
         mat[1] = -s2;
-        mat[2] = x1;
+        mat[2] = -x1;
         mat[3] = s2;
         mat[4] = c2;
-        mat[5] = y1;
+        mat[5] = -y1;
     }
     else
     {
@@ -65,10 +65,10 @@ void motionplanner::initMatrix(float x1, float y1,
         s1 /= len1;
         mat[0] = c1;
         mat[1] = -s1;
-        mat[2] = x1;
+        mat[2] = -x1;
         mat[3] = s1;
         mat[4] = c1;
-        mat[5] = y1;
+        mat[5] = -y1;
     }
 
 }
@@ -134,10 +134,12 @@ void motionplanner::fitBox(float minx, float miny, float maxx, float maxy)
 
     mat[2] -= tmpx;
     mat[5] -= tmpy;
-    mat[2] += (calibration[0] + calibration[2] / 2);
-    mat[5] += (calibration[1] + calibration[3] / 2);
-    mat[2] += (calibration[0] + calibration[4] / 2);
-    mat[5] += (calibration[1] + calibration[5] / 2);
+    mat[2] += calibration[0];
+    mat[5] += calibration[1];
+    mat[2] += (calibration[2] - calibration[0]) / 2;
+    mat[5] += (calibration[3] - calibration[1]) / 2;
+    mat[2] += (calibration[4] - calibration[0]) / 2;
+    mat[5] += (calibration[5] - calibration[1]) / 2;
 
 }
 
@@ -150,11 +152,13 @@ void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
     float h = (float)view_height;
     float w = (float)view_width;
 
-    float viewportpoints[8] = {0, 0,
-                                   (h * c - 0 * s), (0 * c + h * s),
-                                   (0 * c - w * s), (w * c + 0 * s),
-                                   (h * c - w * s), (w * c + h * s)
-                                  };
+    float viewportpoints[8] =
+    {
+        (-200 * c + 200 * s), (-200 * c + -200 * s),
+        (h * c - (-200) * s), ((-200) * c + h * s),
+        ((-200) * c - w * s), (w * c + (-200) * s),
+        (h * c - w * s), (w * c + h * s)
+    };
 
     initMatrix(viewportpoints[0], viewportpoints[1],
                viewportpoints[2], viewportpoints[3],
@@ -204,6 +208,12 @@ void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
     {
         glVertex2f(0, 0);
         glVertex2f(-100, -100);
+        glVertex2f(0, 0);
+        glVertex2f(100, -100);
+        glVertex2f(0, 0);
+        glVertex2f(100, 100);
+        glVertex2f(0, 0);
+        glVertex2f(-100, 100);
         glColor3f(1, 0, 0);
         glVertex2f(viewportpoints[0], viewportpoints[1]);
         glVertex2f(viewportpoints[2], viewportpoints[3]);
