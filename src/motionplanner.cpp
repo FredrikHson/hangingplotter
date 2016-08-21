@@ -2,13 +2,15 @@
 #include <math.h>
 #include "sword.h"
 #include <SDL_opengl.h>
+#include <GL/glu.h>
 #include <stdio.h>
 #include "globals.h"
 
 
 motionplanner::motionplanner()
 {
-    motorDistance = 100;
+    motorDistance = 1000;
+    spindleDiameter = 10;
 }
 
 motionplanner::~motionplanner()
@@ -16,14 +18,24 @@ motionplanner::~motionplanner()
 
 }
 
-void motionplanner::getXY(float len1, float len2, float& x, float& u)
+void motionplanner::getXY(float len1, float len2, float& x, float& y)
 {
+    if(len1 == motorDistance / 2 && len2 == motorDistance / 2)
+    {
+        x = motorDistance / 2;
+        y = 0;
+        return;
+    }
+
+    x = (len1 * len1 - len2 * len2 + motorDistance * motorDistance) / (motorDistance * 2);
+    y = -sqrt(len1 * len1 - x * x);
 
 }
 
 void motionplanner::getLengths(float x, float y, float& len1, float& len2)
 {
-
+    len1 = sqrt(x * x + y * y);
+    len2 = sqrt((x - motorDistance) * (x - motorDistance) + y * y);
 }
 
 void motionplanner::initMatrix(float x1, float y1,
@@ -143,6 +155,11 @@ void motionplanner::fitBox(float minx, float miny, float maxx, float maxy)
 
 }
 
+void motionplanner::setSpindleDiameter(float diam)
+{
+    spindleDiameter = diam;
+}
+
 void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
 {
     static float angle = 0;
@@ -154,10 +171,14 @@ void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
 
     float viewportpoints[8] =
     {
-        (-200 * c + 200 * s), (-200 * c + -200 * s),
-        (h * c - (-200) * s), ((-200) * c + h * s),
-        ((-200) * c - w * s), (w * c + (-200) * s),
-        (h * c - w * s), (w * c + h * s)
+        //(-200 * c + 200 * s), (-200 * c + -200 * s),
+        //(h * c - (-200) * s), ((-200) * c + h * s),
+        //((-200) * c - w * s), (w * c + (-200) * s),
+        //(h * c - w * s), (w * c + h * s)
+        156.7, -150.2,
+        598.5, -74.2,
+        286.2, -901.6,
+        727.9, -825.5
     };
 
     initMatrix(viewportpoints[0], viewportpoints[1],
@@ -198,14 +219,35 @@ void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(-view_width, view_width, -view_height, view_height, 1, -1);
+
+    glOrtho(-500, 1500,  100 - 2000 * ((float)view_height / (float)view_width), 100, 1, -1);
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
     glPushMatrix();
-    glScalef(0.95, 0.95, 1);
+    motors[0].draw();
+    glTranslatef(motorDistance, 0, 0);
+    motors[1].draw();
+    glPopMatrix();
+
+    float im_x = (float)mouse_x / view_width * 2 - 1;
+    float im_y = (float)mouse_y / view_height * -2 + 1;
+    // taken from the inverted matrix
+    float m_x = 1000 * im_x + 500;
+    float m_y = 625 * im_y - 525;
+
     glBegin(GL_LINES);
     {
+        glColor3f(1, 0, 1);
+        glVertex2f(m_x, m_y);
+        glVertex2f(0, 0);
+        glVertex2f(m_x, m_y);
+        glVertex2f(motorDistance, 0);
+
+        glColor3f(1, 1, 1);
+
+        glVertex2f(0, 0);
+        glVertex2f(-100, -100);
         glVertex2f(0, 0);
         glVertex2f(-100, -100);
         glVertex2f(0, 0);
@@ -266,6 +308,31 @@ void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
     }
 
     glEnd();
+    glPointSize(10);
+    glBegin(GL_POINTS);
+    {
+        float x, y;
+        float l1 = sqrt(m_x * m_x + m_y * m_y);
+        float l2 = sqrt((m_x - motorDistance) * (m_x - motorDistance) + m_y * m_y);
+        getLengths(m_x, m_y, l1, l2);
+        getXY(l1, l2, x, y);
+        printf("%f %f x:%f y:%f\n", l1, l2, x, y);
+        glVertex2f(x, y);
+
+        motors[0].setAngle(l1 / spindleDiameter / 2 * (180 / M_PI));
+        motors[1].setAngle(-l2 / spindleDiameter / 2 * (180 / M_PI));
+        l1 = motors[0].m.getAngle() * spindleDiameter * 2 / (180 / M_PI);
+        l2 = motors[1].m.getAngle() * spindleDiameter * 2 / (180 / M_PI);
+
+        getXY(l1, l2, x, y);
+        printf("%f %f x:%f y:%f\n", l1, l2, x, y);
+        glColor3f(1, 1, 0);
+        glVertex2f(x, y);
+    }
+    glEnd();
+    motors[0].update(deltatime);
+    motors[1].update(deltatime);
+
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);

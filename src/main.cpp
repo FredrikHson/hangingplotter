@@ -29,6 +29,8 @@ motorcontroller motors[NUM_MOTORS];
 motionplanner planner;
 int view_height;
 int view_width;
+int mouse_x;
+int mouse_y;
 
 
 void sortMotors()
@@ -258,6 +260,7 @@ int main(int argc, char* argv[])
             space_held = false;
         }
 
+        SDL_GetMouseState(&mouse_x, &mouse_y);
 
         long now = SDL_GetTicks();
         static long last = now;
@@ -274,6 +277,8 @@ int main(int argc, char* argv[])
             {
                 sortMotors();
                 breedMotors();
+                planner.motors[0].setPid(motors[0].getP(), motors[0].getI(), motors[0].getD());
+                planner.motors[1].setPid(motors[0].getP(), motors[0].getI(), motors[0].getD());
             }
 
         }

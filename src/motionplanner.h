@@ -12,6 +12,8 @@
 
 //TODO: rewrite everything to use fixedpoint math
 
+#include "motorcontroller.h"
+
 struct command
 {
     char type;
@@ -31,12 +33,16 @@ class motionplanner
     // aspect ratio to determine the largest image that can be drawn
     float calibration[6];
     float calib_len[2];
+    float spindleDiameter;
+
 public:
+    motorcontroller motors[2];
     motionplanner();
     ~motionplanner();
     void getXY(float len1, float len2, float& x, float& y);
     void getLengths(float x, float y, float& len1, float& len2);
     void setDistance(float distance);
+    void setSpindleDiameter(float diam);
     void initMatrix(float x1, float y1,
                     float x2, float y2,
                     float x3, float y3);
