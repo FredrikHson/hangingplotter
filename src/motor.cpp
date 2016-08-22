@@ -80,7 +80,6 @@ void motor::update(float direction)
     else
     {
         currdir = 0;
-        direction = 0;
 
         if(currentspeed > 0)
         {
@@ -116,7 +115,7 @@ void motor::update(float direction)
 
 }
 
-float motor::getAngle()
+float motor::getAngle() const
 {
     return angle * (180.0 / M_PI);
 }

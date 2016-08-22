@@ -9,8 +9,9 @@
 
 motionplanner::motionplanner()
 {
-    motorDistance = 1000;
-    spindleDiameter = 10;
+    setDistance(1000);
+    setSpindleDiameter(10);
+    initMatrix(0, 0, 1, 0, 0, 1);
 }
 
 motionplanner::~motionplanner()
@@ -18,7 +19,7 @@ motionplanner::~motionplanner()
 
 }
 
-void motionplanner::getXY(float len1, float len2, float& x, float& y)
+void motionplanner::getXY(float len1, float len2, float& x, float& y) const
 {
     if(len1 == motorDistance / 2 && len2 == motorDistance / 2)
     {
@@ -32,7 +33,7 @@ void motionplanner::getXY(float len1, float len2, float& x, float& y)
 
 }
 
-void motionplanner::getLengths(float x, float y, float& len1, float& len2)
+void motionplanner::getLengths(float x, float y, float& len1, float& len2) const
 {
     len1 = sqrt(x * x + y * y);
     len2 = sqrt((x - motorDistance) * (x - motorDistance) + y * y);
@@ -85,7 +86,7 @@ void motionplanner::initMatrix(float x1, float y1,
 
 }
 
-void motionplanner::vecmul(float inx, float iny, float& outx, float& outy)
+void motionplanner::vecmul(float inx, float iny, float& outx, float& outy) const
 {
     outx    = inx * mat[0] + iny * mat[1] + mat[2];
     outy    = inx * mat[3] + iny * mat[4] + mat[5];
@@ -94,8 +95,8 @@ void motionplanner::vecmul(float inx, float iny, float& outx, float& outy)
 // fit longest edge towards the longest edge and center the box to the calibration
 void motionplanner::fitBox(float minx, float miny, float maxx, float maxy)
 {
-    float xlen = abs(maxx - minx);
-    float ylen = abs(maxy - miny);
+    float xlen = fabs(maxx - minx);
+    float ylen = fabs(maxy - miny);
     float aspectcalib = calib_len[0] / calib_len[1];
     float scalefactor = 1;
 
@@ -160,15 +161,13 @@ void motionplanner::setSpindleDiameter(float diam)
     spindleDiameter = diam;
 }
 
+void motionplanner::setDistance(float dist)
+{
+    motorDistance = dist;
+}
+
 void motionplanner::debugDraw() // for now to debug the matrix init and vecmul
 {
-    static float angle = 0;
-    angle += deltatime;
-    float c = cos(angle);
-    float s = sin(angle);
-    float h = (float)view_height;
-    float w = (float)view_width;
-
     float viewportpoints[8] =
     {
         //(-200 * c + 200 * s), (-200 * c + -200 * s),

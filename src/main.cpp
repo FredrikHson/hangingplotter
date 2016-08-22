@@ -113,16 +113,8 @@ void Display_InitGL()
 
 int Display_SetViewport(int width, int height)
 {
-    GLfloat ratio;
-
-    if(height == 0)
-    {
-        height = 1;
-    }
-
     view_height = height;
     view_width = width;
-    ratio = (GLfloat)width / (GLfloat)height;
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
     return 1;
 }

@@ -21,7 +21,7 @@ public:
     motor();
     void draw();
     void update(float direction);
-    float getAngle();
+    float getAngle() const;
     void reset();
 };
 

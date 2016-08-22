@@ -39,8 +39,8 @@ public:
     motorcontroller motors[2];
     motionplanner();
     ~motionplanner();
-    void getXY(float len1, float len2, float& x, float& y);
-    void getLengths(float x, float y, float& len1, float& len2);
+    void getXY(float len1, float len2, float& x, float& y) const;
+    void getLengths(float x, float y, float& len1, float& len2) const;
     void setDistance(float distance);
     void setSpindleDiameter(float diam);
     void initMatrix(float x1, float y1,
@@ -49,7 +49,7 @@ public:
     void fitBox(float minx, float miny,
                 float maxx, float maxy);
     void vecmul(float inx, float iny,
-                float& outx, float& outy);
+                float& outx, float& outy) const;
     void debugDraw();
 };
 

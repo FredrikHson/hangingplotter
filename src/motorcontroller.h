@@ -38,19 +38,19 @@ public:
     int graphend;
 
     void setAngle(float angle, bool resetInternalClock = true);
-    float getAngle();
+    float getAngle() const;
     void update(float seconds = -1.0, float graphspeed = 0.75);
     void draw();
     motorcontroller();
     void setPid(float p, float i, float d);
-    float getP();
-    float getI();
-    float getD();
-    float getOverShoot();
-    float getSteadyState();
+    float getP() const;
+    float getI() const;
+    float getD() const;
+    float getOverShoot() const;
+    float getSteadyState() const;
 
 
-    float getScore();
+    float getScore() const;
     void reset();
     void setRandom();
 

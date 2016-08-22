@@ -152,7 +152,7 @@ void motorcontroller::setAngle(float angle, bool resetInternalClock)
     changeTime = internal_clock;
 }
 
-float motorcontroller::getAngle()
+float motorcontroller::getAngle() const
 {
     return targetAngle;
 }
@@ -164,6 +164,20 @@ motorcontroller::motorcontroller()
 
     this->errSum        = 0;
     this->lastGraphTime = 0;
+    this->lastErr = 0;
+    this->currentAngle = 0;
+    this->targetAngle = 0;
+    this->kd = 0;
+    this->ki = 0;
+    this->kp = 0;
+    this->steadystateValid = false;
+    this->overshootValid = false;
+    this->overshoot = 0;
+    this->maxsteadystate = __FLT_MIN__;
+    this->minsteadystate = __FLT_MAX__;
+    this->internal_clock = 0;
+    this->changeTime = 0;
+    this->startAngle = 0;
 
     for(int i = 0; i < GRAPH_LENGTH; i++)
     {
@@ -180,22 +194,22 @@ void motorcontroller::setPid(float p, float i, float d)
     this->kd = d;
 }
 
-float motorcontroller::getP()
+float motorcontroller::getP() const
 {
     return kp;
 }
 
-float motorcontroller::getI()
+float motorcontroller::getI() const
 {
     return ki;
 }
 
-float motorcontroller::getD()
+float motorcontroller::getD() const
 {
     return kd;
 }
 
-float motorcontroller::getOverShoot()
+float motorcontroller::getOverShoot() const
 {
     if(overshootValid)
     {
@@ -207,7 +221,7 @@ float motorcontroller::getOverShoot()
     }
 
 }
-float motorcontroller::getSteadyState()
+float motorcontroller::getSteadyState() const
 {
     if(changeTime + STEADY_TIME < internal_clock && steadystateValid)
     {
@@ -283,7 +297,7 @@ void motorcontroller::reset()
 }
 
 
-float motorcontroller::getScore()
+float motorcontroller::getScore() const
 {
     return getSteadyState() * 10 + getOverShoot();
 }
